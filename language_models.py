@@ -2,22 +2,25 @@ import abc
 import time
 import torch
 import openai
+import os
+from openai import OpenAI
 from decouple import config
 from sentence_transformers import SentenceTransformer
 from transformers import AutoTokenizer, AutoModelForCausalLM, GenerationConfig
 
 
+
 openai.api_key = config('API_KEY')
-openai.api_base = config('API_BASE')
-openai.api_type = config('API_TYPE')
-openai.api_version = config('API_VERSION')
+#openai.api_base = config('API_BASE')
+#openai.api_type = config('API_TYPE')
+#openai.api_version = config('API_VERSION')
 
 
 class GPT3:
     """Class for interacting with the OpenAI API."""
     def __init__(self):
-        self.deployment_id = 'text-davinci-003'
-        self.deployment_id = 'd365-sales-davinci003'
+        self.deployment_id = 'gpt-4o'
+        self.deployment_id = 'gpt-4o'
 
     def submit_request(self, prompt, temperature=0.7, max_tokens=1024, n=1, split_by=None):
         """Submit a request to the OpenAI API."""
@@ -25,13 +28,23 @@ class GPT3:
         
         while(True):
             try:
-                response = openai.Completion.create(engine=self.deployment_id,
-                                                    prompt=prompt,
-                                                    max_tokens=max_tokens,
-                                                    temperature=temperature,
-                                                    n=n
+                result = []
+                client = OpenAI(api_key=os.environ['API_KEY'])
+                response = client.chat.completions.create(model=self.deployment_id,
+                                                    messages=[
+                                                        {
+                                                            "role": "system",
+                                                            "content": "You are a helpful assistant. Help me with my task!",
+                                                        },
+                                                        {"role": "user", "content": prompt},
+                                                    ],
+                                                        max_tokens=max_tokens,
+                                                        temperature=temperature,
+                                                        n=n
                                                     )
+                result.append(response.choices[0].message.content)
                 break
+                
 
             except Exception as anything:
                 if anything.args[0] == 'string indices must be integers' or 'The response was filtered' in anything.args[0]:
@@ -42,8 +55,10 @@ class GPT3:
                 if error_counter > 10:
                     raise anything
 
-        response = [res['text'].strip() for res in response['choices']]
-        return response
+        #response = [res['text'].strip() for res in response['choices']]
+        #results.extend(result)
+        #return response
+        return result
 
 
 class LLamaV2:

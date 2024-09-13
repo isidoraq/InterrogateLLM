@@ -1,7 +1,8 @@
 import os
 import argparse
 import datetime
-
+import sys
+sys.setrecursionlimit(5000)  # Increase as needed, default is usually 1000
 from models.book_model import BookModel
 from models.movies_model import MoviesModel
 from models.world_model import WorldModel

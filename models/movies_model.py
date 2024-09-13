@@ -2,7 +2,10 @@ import utils
 import pandas as pd
 from datetime import datetime
 from models.model import ModelPipe
+import multiprocessing
 
+# Set the start method to 'spawn'
+multiprocessing.set_start_method('spawn', force=True)
 
 
 class MoviesModel(ModelPipe):
